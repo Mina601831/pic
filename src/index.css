@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #00f2ff;
+  --color-secondary: #7000ff;
+  --color-bg-dark: #050505;
+  --color-accent: #ff0055;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-dark text-white overflow-x-hidden min-h-screen font-sans;
+  }
+}
+
+/* Star Background */
+.stars-container {
+  @apply fixed top-0 left-0 w-full h-full -z-10 overflow-hidden;
+  background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+}
+
+.star {
+  @apply absolute bg-white rounded-full opacity-50;
+  animation: move-star linear infinite;
+}
+
+@keyframes move-star {
+  from { transform: translateY(0); }
+  to { transform: translateY(-100vh); }
+}
+
+/* Custom Utilities */
+.glass-card {
+  @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 mb-6;
+}
+
+.btn {
+  @apply cursor-pointer px-6 py-3 rounded-lg font-bold transition-all duration-300 uppercase m-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-primary { @apply bg-primary text-black hover:brightness-125 hover:scale-105; }
+.btn-secondary { @apply bg-secondary text-white hover:brightness-125 hover:scale-105; }
+.btn-accent { @apply bg-accent text-white hover:brightness-125 hover:scale-105; }
+
+.image-wrapper {
+  @apply relative w-full max-w-[450px] aspect-[4/3] bg-black border-4 border-white/10 overflow-hidden rounded-xl;
+}
+
+.grid-overlay {
+  @apply absolute top-0 left-0 w-full h-full grid gap-0.5;
+}
+
+.square {
+  @apply bg-secondary border border-white/20 flex items-center justify-center font-bold text-lg text-white transition-all duration-700 cursor-pointer hover:bg-secondary/80;
+}
+
+.square.revealed {
+  @apply opacity-0 scale-150 rotate-[15deg] pointer-events-none;
+}
+
+.modal {
+  @apply fixed top-0 left-0 w-full h-full bg-black/90 z-[100] flex items-center justify-center p-4;
+}
+
+.modal-content {
+  @apply bg-[#1a1a1a] p-8 rounded-2xl border-2 border-primary max-w-lg w-full text-center shadow-[0_0_30px_rgba(0,242,255,0.2)];
+}
+
+.options-grid {
+  @apply grid grid-cols-2 gap-3 mt-6;
+}
+
+.team-area {
+  @apply flex-1 flex flex-col items-center transition-all duration-500 relative p-4 rounded-2xl;
+}
+
+.team-area.active {
+  @apply shadow-[0_0_40px_rgba(0,242,255,0.2)] bg-primary/5;
+}
