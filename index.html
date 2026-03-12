@@ -1,13 +1,115 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي سباق كشف الصورتين - النسخة الاحترافية</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
 
+    <div id="stars-container"></div>
+
+    <!-- شاشة الإعدادات -->
+    <div id="setup-screen">
+        <h1>🚀 إعداد سباق كشف الصورتين</h1>
+        
+        <div class="setup-card">
+            <h2>⚙️ إدارة المشروع</h2>
+            <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-secondary" onclick="exportProject()">💾 حفظ المشروع (JSON)</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📂 تحميل مشروع</button>
+                <input type="file" id="importFile" style="display:none" accept=".json" onchange="importProject(event)">
+            </div>
+        </div>
+
+        <div class="team-setup">
+            <!-- الفريق الأول -->
+            <div class="setup-card">
+                <h2>الفريق الأول</h2>
+                <input type="text" id="t1-name" placeholder="اسم الفريق الأول" value="فريق النجوم">
+                <label style="display:block; margin-top:10px;">ارفع صورة الفريق الأول:</label>
+                <input type="file" id="t1-img" accept="image/*" onchange="handleImage(event, 1)">
+                <input type="number" id="t1-q-count" placeholder="عدد الأسئلة" min="1" value="4" onchange="generateQuestionInputs(1)">
+                <div id="t1-questions-container"></div>
+            </div>
+
+            <!-- الفريق الثاني -->
+            <div class="setup-card">
+                <h2>الفريق الثاني</h2>
+                <input type="text" id="t2-name" placeholder="اسم الفريق الثاني" value="فريق الأبطال">
+                <label style="display:block; margin-top:10px;">ارفع صورة الفريق الثاني:</label>
+                <input type="file" id="t2-img" accept="image/*" onchange="handleImage(event, 2)">
+                <input type="number" id="t2-q-count" placeholder="عدد الأسئلة" min="1" value="4" onchange="generateQuestionInputs(2)">
+                <div id="t2-questions-container"></div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; margin-bottom: 50px;">
+            <button class="btn btn-primary" style="font-size: 1.5rem; padding: 15px 40px;" onclick="startGame()">🏁 ابدأ السباق الآن</button>
+        </div>
+    </div>
+
+    <!-- شاشة اللعبة -->
+    <div id="game-screen">
+        <div class="game-header">
+            <div id="turn-indicator" style="font-size: 1.3rem; color: var(--primary); font-weight:bold;">الدور الآن: <span id="current-team-name">...</span></div>
+            <button class="btn btn-accent" onclick="location.reload()">🔄 إنهاء اللعبة</button>
+        </div>
+
+        <div class="race-container">
+            <!-- مساحة الفريق 1 -->
+            <div id="area-1" class="team-area">
+                <div class="team-name" id="display-t1-name">الفريق 1</div>
+                <div class="image-wrapper">
+                    <img id="img-1" class="main-image" alt="Team 1 Challenge">
+                    <div id="grid-1" class="grid-overlay"></div>
+                </div>
+                <button class="btn btn-primary" id="guess-btn-1" onclick="openGuessModal(1)">🤔 تخمين الصورة</button>
+            </div>
+
+            <!-- مساحة الفريق 2 -->
+            <div id="area-2" class="team-area">
+                <div class="team-name" id="display-t2-name">الفريق 2</div>
+                <div class="image-wrapper">
+                    <img id="img-2" class="main-image" alt="Team 2 Challenge">
+                    <div id="grid-2" class="grid-overlay"></div>
+                </div>
+                <button class="btn btn-primary" id="guess-btn-2" onclick="openGuessModal(2)">🤔 تخمين الصورة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة السؤال -->
+    <div id="question-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-q-text" style="color:var(--primary); margin-bottom:20px;">السؤال هنا؟</h2>
+            <div class="options-grid" id="modal-options"></div>
+        </div>
+    </div>
+
+    <!-- نافذة التخمين -->
+    <div id="guess-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="color:var(--primary); margin-bottom:20px;">ماذا يوجد في الصورة؟</h2>
+            <input type="text" id="guess-input" placeholder="اكتب إجابتك هنا..." style="text-align:center; font-size:1.2rem;">
+            <div style="display:flex; justify-content:center; gap:10px; margin-top:20px;">
+                <button class="btn btn-primary" onclick="submitGuess()">تحقق</button>
+                <button class="btn btn-accent" onclick="closeModals()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة الفوز -->
+    <div id="win-modal" class="modal">
+        <div class="modal-content" style="border-color:gold; box-shadow: 0 0 60px rgba(255,215,0,0.3);">
+            <h1 class="winner-anim" style="color:gold; font-size:3rem; margin-bottom:10px;">🏆 مبروك الفوز! 🏆</h1>
+            <h2 id="winner-team-name" style="font-size:2rem; margin-bottom:20px;">اسم الفريق</h2>
+            <p style="font-size:1.2rem; opacity:0.8; margin-bottom:30px;">لقد نجحتم في كشف الصورة أولاً!</p>
+            <button class="btn btn-primary" style="font-size:1.2rem; padding:12px 40px;" onclick="location.reload()">لعب مرة أخرى</button>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
