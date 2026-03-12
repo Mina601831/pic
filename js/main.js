@@ -160,17 +160,12 @@ function setupGrid(teamNum) {
 }
 
 function updateTurnUI() {
-    const team = gameState.teams[gameState.currentTurn];
-    document.getElementById('current-team-name').innerText = team.name;
-    document.getElementById('area-1').classList.toggle('active', gameState.currentTurn === 1);
-    document.getElementById('area-2').classList.toggle('active', gameState.currentTurn === 2);
-    
-    document.getElementById('guess-btn-1').disabled = (gameState.currentTurn !== 1);
-    document.getElementById('guess-btn-2').disabled = (gameState.currentTurn !== 2);
+    // تم إلغاء نظام الأدوار - كلا الفريقين يمكنهما اللعب في أي وقت
+    document.getElementById('guess-btn-1').disabled = false;
+    document.getElementById('guess-btn-2').disabled = false;
 }
 
 function handleSquareClick(teamNum, qIdx) {
-    if (gameState.currentTurn !== teamNum) return;
     if (gameState.teams[teamNum].revealed.includes(qIdx)) return;
 
     const question = gameState.teams[teamNum].questions[qIdx];
@@ -181,7 +176,7 @@ function handleSquareClick(teamNum, qIdx) {
         } else {
             playSound('wrong');
         }
-        switchTurn();
+        // تم إزالة switchTurn()
     });
 }
 
@@ -248,7 +243,7 @@ function submitGuess() {
         }
         playSound('wrong');
         closeModals();
-        switchTurn();
+        // تم إزالة switchTurn()
     }
 }
 
