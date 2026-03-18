@@ -29,7 +29,10 @@
                 <h2>الفريق الأول</h2>
                 <input type="text" id="t1-name" placeholder="اسم الفريق الأول" value="فريق النجوم">
                 <label style="display:block; margin-top:10px;">ارفع صورة الفريق الأول:</label>
-                <input type="file" id="t1-img" accept="image/*" onchange="handleImage(event, 1)">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <input type="file" id="t1-img" accept="image/*" onchange="handleImage(event, 1)" style="flex: 1;">
+                    <img id="t1-preview" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; display: none; border: 1px solid var(--primary);">
+                </div>
                 <input type="number" id="t1-q-count" placeholder="عدد الأسئلة" min="1" value="4" onchange="generateQuestionInputs(1)">
                 <div id="t1-questions-container"></div>
             </div>
@@ -39,7 +42,10 @@
                 <h2>الفريق الثاني</h2>
                 <input type="text" id="t2-name" placeholder="اسم الفريق الثاني" value="فريق الأبطال">
                 <label style="display:block; margin-top:10px;">ارفع صورة الفريق الثاني:</label>
-                <input type="file" id="t2-img" accept="image/*" onchange="handleImage(event, 2)">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <input type="file" id="t2-img" accept="image/*" onchange="handleImage(event, 2)" style="flex: 1;">
+                    <img id="t2-preview" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; display: none; border: 1px solid var(--primary);">
+                </div>
                 <input type="number" id="t2-q-count" placeholder="عدد الأسئلة" min="1" value="4" onchange="generateQuestionInputs(2)">
                 <div id="t2-questions-container"></div>
             </div>

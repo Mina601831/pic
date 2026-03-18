@@ -91,12 +91,30 @@ function handleImage(event, teamNum) {
     const reader = new FileReader();
     reader.onload = (e) => {
         gameState.teams[teamNum].img = e.target.result;
+        const preview = document.getElementById(`t${teamNum}-preview`);
+        preview.src = e.target.result;
+        preview.style.display = 'block';
     };
     reader.readAsDataURL(file);
 }
 
 // بدء اللعبة
 function startGame() {
+    collectFormData(); // تحديث البيانات من الحقول قبل البدء
+
+    for (let t = 1; t <= 2; t++) {
+        if (!gameState.teams[t].img) { alert(`يرجى رفع صورة للفريق ${t}`); return; }
+        if (gameState.teams[t].questions.length === 0) { alert(`يرجى إضافة أسئلة للفريق ${t}`); return; }
+        if (!gameState.teams[t].keyword) { alert(`يرجى إدخال الكلمة المفتاحية للفريق ${t}`); return; }
+    }
+
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'flex';
+    
+    initGameUI();
+}
+
+function collectFormData() {
     for (let t = 1; t <= 2; t++) {
         gameState.teams[t].name = document.getElementById(`t${t}-name`).value;
         gameState.teams[t].keyword = document.getElementById(`t${t}-keyword`)?.value || "";
@@ -111,19 +129,10 @@ function startGame() {
             gameState.teams[t].questions.push({
                 text: q.value,
                 correct: opts[0],
-                options: opts.sort(() => Math.random() - 0.5)
+                options: opts // نحفظها كما هي (الأولى صحيحة والباقي خطأ)
             });
         });
-
-        if (!gameState.teams[t].img) { alert(`يرجى رفع صورة للفريق ${t}`); return; }
-        if (gameState.teams[t].questions.length === 0) { alert(`يرجى إضافة أسئلة للفريق ${t}`); return; }
-        if (!gameState.teams[t].keyword) { alert(`يرجى إدخال الكلمة المفتاحية للفريق ${t}`); return; }
     }
-
-    document.getElementById('setup-screen').style.display = 'none';
-    document.getElementById('game-screen').style.display = 'flex';
-    
-    initGameUI();
 }
 
 // تهيئة واجهة اللعبة
@@ -188,7 +197,10 @@ function showQuestion(q, callback) {
     text.innerText = q.text;
     optsContainer.innerHTML = "";
     
-    q.options.forEach(opt => {
+    // خلط الخيارات عند العرض فقط
+    const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+    
+    shuffledOptions.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'btn btn-secondary';
         btn.innerText = opt;
@@ -258,6 +270,7 @@ function closeModals() {
 }
 
 function exportProject() {
+    collectFormData(); // جمع البيانات الحالية من الحقول قبل الحفظ
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(gameState));
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
@@ -275,23 +288,33 @@ function importProject(event) {
         try {
             gameState = JSON.parse(e.target.result);
             for(let t=1; t<=2; t++) {
-                document.getElementById(`t${t}-name`).value = gameState.teams[t].name;
+                document.getElementById(`t${t}-name`).value = gameState.teams[t].name || "";
                 document.getElementById(`t${t}-q-count`).value = gameState.teams[t].questions.length;
                 generateQuestionInputs(t);
-                document.getElementById(`t${t}-keyword`).value = gameState.teams[t].keyword;
+                document.getElementById(`t${t}-keyword`).value = gameState.teams[t].keyword || "";
                 
+                // تحديث المعاينة للصورة
+                const preview = document.getElementById(`t${t}-preview`);
+                if (gameState.teams[t].img) {
+                    preview.src = gameState.teams[t].img;
+                    preview.style.display = 'block';
+                } else {
+                    preview.style.display = 'none';
+                }
+
                 const qTexts = document.querySelectorAll(`.t${t}-q-text`);
                 const qOpts = document.querySelectorAll(`.t${t}-q-opt`);
                 gameState.teams[t].questions.forEach((q, i) => {
-                    qTexts[i].value = q.text;
-                    qOpts[i*4].value = q.correct;
-                    qOpts[i*4+1].value = q.options[0];
-                    qOpts[i*4+2].value = q.options[1];
-                    qOpts[i*4+3].value = q.options[2];
+                    qTexts[i].value = q.text || "";
+                    // q.options تحتوي على [صح، خطأ1، خطأ2، خطأ3] بالترتيب الأصلي
+                    for (let j = 0; j < 4; j++) {
+                        qOpts[i * 4 + j].value = q.options[j] || "";
+                    }
                 });
             }
             alert("تم تحميل المشروع بنجاح!");
         } catch(err) {
+            console.error(err);
             alert("خطأ في قراءة ملف المشروع!");
         }
     };
